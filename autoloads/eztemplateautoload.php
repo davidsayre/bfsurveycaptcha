@@ -1,8 +1,8 @@
 <?php
 $eZTemplateOperatorArray = array();
  
-$eZTemplateOperatorArray[] = array( 'script' => 'extension/bfsurveycaptcha/autoloads/bfsurveyoperators.php',
-                                   'class' => 'BFSurveyOperators',
-                                   'operator_names' => array( 'validatecaptcha' )
+$eZTemplateOperatorArray[] = array( 'script' => 'extension/bfsurveycaptcha/autoloads/bfsurveycaptchaoperators.php',
+                                   'class' => 'BFSurveyCaptchaOperators',
+                                   'operator_names' => array( 'recaptcha_form' )
 );
 ?>

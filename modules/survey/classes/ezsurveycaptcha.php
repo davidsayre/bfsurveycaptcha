@@ -1,14 +1,14 @@
 <?php
 class eZSurveyCaptcha extends eZSurveyQuestion
 {
-   /*
-     * constructor
-     */
-   function __construct( $row = false )
-   {
-       $row[ 'type' ] = 'Captcha';
-       $this->eZSurveyQuestion( $row );
-   }
+  /*
+   * constructor
+   */
+  function __construct( $row = false )
+  {
+     $row[ 'type' ] = 'Captcha';
+     $this->eZSurveyQuestion( $row );
+  }
  
    /*
      * called when a question is created / edited in the admin
@@ -46,6 +46,7 @@ class eZSurveyCaptcha extends eZSurveyQuestion
      */
    function processViewActions( &$validation, $params )
    {
+
        $http = eZHTTPTool::instance();
        $variableArray = array();
  
@@ -53,10 +54,45 @@ class eZSurveyCaptcha extends eZSurveyQuestion
        $attributeID = $params[ 'contentobjectattribute_id' ];
  
        $postSurveyAnswer = $prefix . '_ezsurvey_answer_' . $this->ID . '_' . $attributeID;
+
        if ( $this->attribute( 'mandatory' ) == 1 )
        {
-           $answer   = $http->postVariable( $postSurveyAnswer, '' );
-           if( !$answer )
+            
+          $captcha_valid = false;
+
+          //check for captcha form field
+          if( $http->hasPostVariable( 'recaptcha_response_field' ) && $http->hasPostVariable( 'recaptcha_challenge_field' ))
+          {
+            
+            include_once( 'extension/bfsurveycaptcha/classes/recaptchalib.php' );
+            $ini = eZINI::instance( 'bfsurveycaptcha.ini' );
+            $privateKey = $ini->variable( 'reCAPTCHA', 'Private' );
+
+            $captcha_answer = trim($http->postVariable( 'recaptcha_response_field' ));
+            $captcha_challenge = $http->postVariable( 'recaptcha_challenge_field' ) ;
+            $server_addr = $_SERVER["REMOTE_ADDR"];            
+            
+            //request validation if populated
+            if($privateKey && $captcha_answer && $captcha_challenge && $server_addr) {          
+
+              $captcha_resp = recaptcha_check_answer ($privateKey,
+                          $server_addr,
+                          $captcha_challenge,
+                          $captcha_answer
+                          );
+              if ($captcha_resp->is_valid) {
+                //echo "You got it!";
+                $captcha_valid = true;
+              } else {
+                # set the error code so that we can display it
+                //SKIP $captcha_error = $captcha_resp->error;
+              }
+
+            }   
+
+          }
+
+           if( !$captcha_valid )
            {
                $validation['error'] = true;
                $validation['errors'][] = array( 'message' => ezpI18n::tr( 'survey', 'Please re-enter the captcha value', null,
@@ -67,8 +103,9 @@ class eZSurveyCaptcha extends eZSurveyQuestion
                return false;
            }
        }
-       $this->setAnswer( $http->postVariable( $postSurveyAnswer, '' ) );
-       $variableArray[ 'answer' ] = $http->postVariable( $postSurveyAnswer, '' );
+
+      //SKIP saving: $this->setAnswer( $http->postVariable( $postSurveyAnswer, '' ) );
+      //SKIP saving: $variableArray[ 'answer' ] = $http->postVariable( $postSurveyAnswer, '' );
  
        return $variableArray;
    }
@@ -78,18 +115,7 @@ class eZSurveyCaptcha extends eZSurveyQuestion
      */
    function answer()
    {
-       if( $this->Answer !== false )
-           return $this->Answer;
- 
-       $http = eZHTTPTool::instance();
-       $prefix = eZSurveyType::PREFIX_ATTRIBUTE;
-       $postSurveyAnswer = $prefix . '_ezsurvey_answer_' . $this->ID . '_' . $this->contentObjectAttributeID();
-       if( $http->hasPostVariable( $postSurveyAnswer ) )
-       {
-           $surveyAnswer = $http->postVariable( $postSurveyAnswer );
-           return $surveyAnswer;
-       }
- 
+      /* answer is not stored */      
        return false;
    }
 }

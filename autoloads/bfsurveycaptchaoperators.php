@@ -28,12 +28,12 @@ class BFSurveyCaptchaOperators
             case 'recaptcha_form':
             {   
     			//load library
-    			include_once( 'extension/bfsurveycaptcha/classes/recaptchalib.php' );
+    			include_once( 'extension/bfsurveycaptcha/classes/bfrecaptchalib.php' );
     		
     			//get recatcha public key
     			$publicKey = '';
     			$ini = eZINI::instance( 'bfsurveycaptcha.ini' );
-    			$publicKeyIni = $ini->variable( 'reCAPTCHA', 'Public' );
+    			$publicKeyIni = $ini->variable( 'RecaptchaSetting', 'PublicKey' );
     			$publicKey =  $publicKeyIni;
 
     			$operatorValue = recaptcha_get_html($publicKey);

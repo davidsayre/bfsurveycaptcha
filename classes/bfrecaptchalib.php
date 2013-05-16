@@ -1,5 +1,5 @@
 <?php
-/*
+/* DJS @ BFC modified
  * This is a PHP library that handles calling reCAPTCHA.
  *    - Documentation and latest version
  *          http://recaptcha.net/plugins/php/
@@ -100,16 +100,17 @@ function _recaptcha_http_post($host, $path, $data, $port = 80) {
  * @param string $pubkey A public key for reCAPTCHA
  * @param string $error The error given by reCAPTCHA (optional, default is null)
  * @param boolean $use_ssl Should the request be made over ssl? (optional, default is false)
-
  * @return string - The HTML to be embedded in the user's form.
  */
 function recaptcha_get_html ($pubkey, $error = null, $use_ssl = false)
 {
-	if ($pubkey == null || $pubkey == '') {
-		die ("To use reCAPTCHA you must get an API key from <a href='https://www.google.com/recaptcha/admin/create'>https://www.google.com/recaptcha/admin/create</a>");
-	}
-	
-	if ($use_ssl) {
+  if ($pubkey == null || $pubkey == '') {
+    //DJS @ BFC gentler than die ();
+    $recaptchaHTML = "To use reCAPTCHA you must get an API key from <a href='https://www.google.com/recaptcha/admin/create'>https://www.google.com/recaptcha/admin/create</a>";
+    return $recaptchaHTML;
+  }
+  
+  if ($use_ssl) {
                 $server = RECAPTCHA_API_SECURE_SERVER;
         } else {
                 $server = RECAPTCHA_API_SERVER;
@@ -121,20 +122,20 @@ function recaptcha_get_html ($pubkey, $error = null, $use_ssl = false)
         }
         return '<script type="text/javascript" src="'. $server . '/challenge?k=' . $pubkey . $errorpart . '"></script>
 
-	<noscript>
-  		<iframe src="'. $server . '/noscript?k=' . $pubkey . $errorpart . '" height="300" width="500" frameborder="0"></iframe><br/>
-  		<textarea name="recaptcha_challenge_field" rows="3" cols="40"></textarea>
-  		<input type="hidden" name="recaptcha_response_field" value="manual_challenge"/>
-	</noscript>';
+  <noscript>
+      <iframe src="'. $server . '/noscript?k=' . $pubkey . $errorpart . '" height="300" width="500" frameborder="0"></iframe><br/>
+      <textarea name="recaptcha_challenge_field" rows="3" cols="40"></textarea>
+      <input type="hidden" name="recaptcha_response_field" value="manual_challenge"/>
+  </noscript>';
 }
 
 
 
 
 /**
- * A ReCaptchaResponse is returned from recaptcha_check_answer()
+ * A BFReCaptchaResponse is returned from recaptcha_check_answer()
  */
-class ReCaptchaResponse {
+class BFReCaptchaResponse {
         var $is_valid;
         var $error;
 }
@@ -147,7 +148,7 @@ class ReCaptchaResponse {
   * @param string $challenge
   * @param string $response
   * @param array $extra_params an array of extra variables to post to the server
-  * @return ReCaptchaResponse
+  * @return BFReCaptchaResponse
   */
 function recaptcha_check_answer ($privkey, $remoteip, $challenge, $response, $extra_params = array())
 {
@@ -163,7 +164,7 @@ function recaptcha_check_answer ($privkey, $remoteip, $challenge, $response, $ex
 	
         //discard spam submissions
         if ($challenge == null || strlen($challenge) == 0 || $response == null || strlen($response) == 0) {
-                $recaptcha_response = new ReCaptchaResponse();
+                $recaptcha_response = new BFReCaptchaResponse();
                 $recaptcha_response->is_valid = false;
                 $recaptcha_response->error = 'incorrect-captcha-sol';
                 return $recaptcha_response;
@@ -179,7 +180,7 @@ function recaptcha_check_answer ($privkey, $remoteip, $challenge, $response, $ex
                                           );
 
         $answers = explode ("\n", $response [1]);
-        $recaptcha_response = new ReCaptchaResponse();
+        $recaptcha_response = new BFReCaptchaResponse();
 
         if (trim ($answers [0]) == 'true') {
                 $recaptcha_response->is_valid = true;

@@ -64,9 +64,9 @@ class eZSurveyCaptcha extends eZSurveyQuestion
           if( $http->hasPostVariable( 'recaptcha_response_field' ) && $http->hasPostVariable( 'recaptcha_challenge_field' ))
           {
             
-            include_once( 'extension/bfsurveycaptcha/classes/recaptchalib.php' );
+            include_once( 'extension/bfsurveycaptcha/classes/bfrecaptchalib.php' );
             $ini = eZINI::instance( 'bfsurveycaptcha.ini' );
-            $privateKey = $ini->variable( 'reCAPTCHA', 'Private' );
+            $privateKey = $ini->variable( 'RecaptchaSetting', 'PrivateKey' );
 
             $captcha_answer = trim($http->postVariable( 'recaptcha_response_field' ));
             $captcha_challenge = $http->postVariable( 'recaptcha_challenge_field' ) ;
